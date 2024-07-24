@@ -7,7 +7,7 @@
 #include <format>
 
 #include "touchscreen/touchscreen.h"
-#include "touchscreen/touchscreenutils.h"
+#include "utils/eventutils.h"
 
 using namespace TouchScreenNS;
 
@@ -17,7 +17,7 @@ TouchScreen::TouchScreen(sdbus::IObject* sdbus, sdbus::InterfaceName sdbusInterf
     _sdbusInterface = sdbusInterface;
     registerDbusSignals();
 
-    std::optional<std::string> touchScreenEvent = findTouchScreenEvent();
+    std::optional<std::string> touchScreenEvent = findEventID(TOUCHSCREEN_TYPE);
 
     if (!touchScreenEvent.has_value()){
         ERROR("Could not extract touch screen input name!");
@@ -37,6 +37,11 @@ TouchScreen::TouchScreen(sdbus::IObject* sdbus, sdbus::InterfaceName sdbusInterf
     pfd[0].events = POLLIN;
 }
 
+TouchScreen::~TouchScreen()
+{
+    close(fileno(eventSource));
+}
+
 void TouchScreen::registerDbusSignals(){
     for (const std::string& s: directionStrings){
         _sdbus->addVTable(sdbus::SignalVTableItem{sdbus::MethodName{s}, {}, {}}).forInterface(_sdbusInterface);
@@ -46,7 +51,7 @@ void TouchScreen::registerDbusSignals(){
 void TouchScreen::sendSignal(Direction direction){
     std::string signalType = directionStrings[direction];
 
-    auto signal = _sdbus->createSignal(sdbus::InterfaceName{_sdbusInterface}, sdbus::SignalName{signalType});
+    auto signal = _sdbus->createSignal(_sdbusInterface, sdbus::SignalName{signalType});
     _sdbus->emitSignal(signal);
 }
 

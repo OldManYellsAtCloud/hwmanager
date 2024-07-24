@@ -1,5 +1,5 @@
-#ifndef TOUCHSCREENUTILS_H
-#define TOUCHSCREENUTILS_H
+#ifndef EVENTUTILS_H
+#define EVENTUTILS_H
 
 #include <optional>
 #include <string>
@@ -11,6 +11,6 @@
 #define HANDLER_TYPE "H: Handlers"
 #define EVENT_HANDLER "event"
 
-std::optional<std::string> findTouchScreenEvent();
+std::optional<std::string> findEventID(std::string eventType);
 
-#endif // TOUCHSCREENUTILS_H
+#endif // EVENTUTILS_H

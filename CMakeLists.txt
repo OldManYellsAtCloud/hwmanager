@@ -13,12 +13,16 @@ find_package(LogLibrary)
 
 set(SOURCES src/main.cpp
             src/touchscreen/touchscreen.cpp
-            src/touchscreen/touchscreenutils.cpp)
+            src/utils/eventutils.cpp
+            src/button/powerbutton.cpp
+            src/button/volumebutton.cpp)
 
 set(HEADERS include/touchscreen/touchscreen.h
-            include/touchscreen/touchscreenutils.h)
+            include/utils/eventutils.h
+            include/button/powerbutton.h
+            include/button/volumebutton.h)
 
-add_executable(hwmanager ${HEADERS} ${SOURCES} )
+add_executable(hwmanager ${HEADERS} ${SOURCES})
 
 include(GNUInstallDirs)
 install(TARGETS hwmanager

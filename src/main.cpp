@@ -3,6 +3,8 @@
 
 #include <sdbus-c++/sdbus-c++.h>
 #include <touchscreen/touchscreen.h>
+#include <button/powerbutton.h>
+#include <button/volumebutton.h>
 
 using namespace std;
 
@@ -30,7 +32,13 @@ int main()
     sdbus::InterfaceName interfaceName{"org.gspine.Hardware"};
 
     TouchScreenNS::TouchScreen ts{sdbusObject.get(), interfaceName};
-    threads.push_back(std::jthread{&TouchScreenNS::TouchScreen::TouchScreen::run, ts});
+    threads.push_back(std::jthread{&TouchScreenNS::TouchScreen::run, ts});
+
+    PowerButton pb{sdbusObject.get(), interfaceName};
+    threads.push_back(std::jthread{&PowerButton::run, pb});
+
+    VolumeButton vb{sdbusObject.get(), interfaceName};
+    threads.push_back(std::jthread{&VolumeButton::run, vb});
 
     connection->enterEventLoop();
 

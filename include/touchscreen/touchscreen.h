@@ -16,6 +16,8 @@
 
 #define MIN_EVENT_NUMBER 20
 
+#define TOUCHSCREEN_TYPE "input/ts"
+
 namespace TouchScreenNS {
 
 enum Direction {
@@ -57,7 +59,7 @@ private:
 public:
 
     TouchScreen(sdbus::IObject* sdbus, sdbus::InterfaceName sdbusInterface);
-    ~TouchScreen(){}
+    ~TouchScreen();
 
     void run(std::stop_token stopToken);
 };

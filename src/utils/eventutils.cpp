@@ -1,4 +1,4 @@
-#include "touchscreen/touchscreenutils.h"
+#include "utils/eventutils.h"
 #include <fstream>
 #include <loglibrary.h>
 #include <sstream>
@@ -41,13 +41,13 @@ std::optional<std::string> getNextEventId(std::ifstream& stream){
     return eventId;
 }
 
-bool isLineTouchscreenName(const std::string& line){
-    return line.starts_with(PHYS_TYPE) && line.ends_with(TOUCHSCREEN_TYPE);
+bool isMatchingEventType(const std::string& line, const std::string eventType){
+    return line.starts_with(PHYS_TYPE) && line.ends_with(eventType);
 }
 
 } // end of anonymous namespace
 
-std::optional<std::string> findTouchScreenEvent(){
+std::optional<std::string> findEventID(std::string eventType){
     std::ifstream inputDevices{INPUT_DEVICES, std::ios_base::in};
     std::optional<std::string> eventId;
 
@@ -60,7 +60,7 @@ std::optional<std::string> findTouchScreenEvent(){
 
     while (inputDevices.good()){
         std::getline(inputDevices, line);
-        if (isLineTouchscreenName(line)){
+        if (isMatchingEventType(line, eventType)){
             eventId = getNextEventId(inputDevices);
             break;
         }
