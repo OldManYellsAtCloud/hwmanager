@@ -22,6 +22,8 @@ set(HEADERS include/touchscreen/touchscreen.h
             include/button/powerbutton.h
             include/button/volumebutton.h)
 
+set(EXTRA_RESOURCES org.gspine.hardware.conf)
+
 add_executable(hwmanager ${HEADERS} ${SOURCES})
 
 include(GNUInstallDirs)
@@ -38,3 +40,6 @@ if (enable_tests)
     enable_testing()
     include(GoogleTest)
 endif()
+
+install(TARGETS hwmanager RUNTIME DESTINATION /usr/bin)
+install(FILES ${EXTRA_RESOURCES} DESTINATION /etc/dbus-1/system.d/)
