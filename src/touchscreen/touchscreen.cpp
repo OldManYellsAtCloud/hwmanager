@@ -57,9 +57,9 @@ void TouchScreen::sendSignal(Direction direction){
 
 bool TouchScreen::readEvent(struct input_event& event)
 {
-    poll(pfd, sizeof(pfd) / sizeof(pollfd), POLL_TIMEOUT_MS);
+    poll(pfd, 1, POLL_TIMEOUT_MS);
     if (pfd[0].revents & POLLIN){
-        fread(&event, sizeof(input_event), 1, eventSource);
+        fread(&event, sizeof(event), 1, eventSource);
         return true;
     }
     return false;
@@ -110,6 +110,9 @@ std::optional<struct Points> TouchScreen::collectData(std::stop_token& stopToken
     size_t eventNumX = 0;
     size_t eventNumY = 0;
 
+    int readTries = 0;
+    const int MAX_READ_TRIES = 3;
+
     Points points;
 
     bool enoughDataCollected = false;
@@ -117,9 +120,15 @@ std::optional<struct Points> TouchScreen::collectData(std::stop_token& stopToken
 
     struct input_event event;
 
-    while (!stopToken.stop_requested() && !enoughDataCollected){
-        if (!readEvent(event))
-            continue;
+    do {
+        if (readEvent(event)){
+            readTries = 0;
+        } else {
+            ++readTries;
+        }
+
+        if (readTries >= MAX_READ_TRIES)
+            break;
 
         bool touchEndpoint = event.code == BTN_TOUCH && event.type == EV_KEY;
 
@@ -128,15 +137,10 @@ std::optional<struct Points> TouchScreen::collectData(std::stop_token& stopToken
             eventNumX = 0;
             eventNumY = 0;
         } else {
-            bool endGesture = event.value == 0 && touchEndpoint;
-            if (endGesture)
-                break;
-
-            if (event.code == ABS_X){
+            if (event.code == ABS_X && event.type == EV_ABS){
                 if (eventNumX++ == 0) points.start.x = event.value;
                 points.end.x = event.value;
-
-            } else if (event.code == ABS_Y){
+            } else if (event.code == ABS_Y && event.type == EV_ABS){
                 if (eventNumY++ == 0) points.start.y = event.value;
                 points.end.y = event.value;
 
@@ -146,7 +150,8 @@ std::optional<struct Points> TouchScreen::collectData(std::stop_token& stopToken
         enoughDataCollected = eventNumX > 0 &&
                               eventNumY > 0 &&
                               (eventNumX + eventNumY) > MIN_EVENT_NUMBER;
-    }
+
+    } while (!stopToken.stop_requested() && !enoughDataCollected);
 
     if (enoughDataCollected)
         ret = points;
