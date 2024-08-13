@@ -8,7 +8,13 @@
 #define VOLUME_UP_PRESS         "volumeUpPress"
 #define VOLUME_UP_RELEASE       "volumeUpRelease"
 
+#ifdef PINEPHONE_PRO
 #define VOLUME_BUTTON_PHYS  "adc-keys/input0"
+#elif defined PINEPHONE
+#define VOLUME_BUTTON_PHYS  "sun4i_lradc/input0"
+#else
+static_assert(false, "Either PINEPHONE or PINEPHONE_PRO macro must be defined! Check Cmake config!");
+#endif
 
 class VolumeButton
 {
