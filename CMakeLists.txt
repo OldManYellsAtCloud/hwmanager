@@ -6,6 +6,10 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 option(enable_tests "Build tests" OFF)
+option(pinephone "Build for PinePhone" OFF)
+option(pinephone_pro "Build for PinePhonePro" OFF)
+
+
 
 find_package(sdbus-c++ REQUIRED)
 find_package(SettingsLib)
@@ -41,5 +45,13 @@ if (enable_tests)
     include(GoogleTest)
 endif()
 
+if (pinephone)
+    add_compile_definitions(PINEPHONE)
+elseif(pinephone_pro)
+    add_compile_definitions(PINEPHONE_PRO)
+endif()
+
 install(TARGETS hwmanager RUNTIME DESTINATION /usr/bin)
 install(FILES ${EXTRA_RESOURCES} DESTINATION /etc/dbus-1/system.d/)
+
+
