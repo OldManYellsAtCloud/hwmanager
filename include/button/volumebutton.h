@@ -13,7 +13,7 @@
 #elif defined PINEPHONE
 #define VOLUME_BUTTON_PHYS  "sun4i_lradc/input0"
 #else
-static_assert(false, "Either PINEPHONE or PINEPHONE_PRO macro must be defined! Check Cmake config!");
+#error "Either PINEPHONE or PINEPHONE_PRO macro must be defined! Check Cmake config!"
 #endif
 
 class VolumeButton
