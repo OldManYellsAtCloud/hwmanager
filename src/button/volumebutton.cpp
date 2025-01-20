@@ -1,7 +1,7 @@
 #include "button/volumebutton.h"
 #include <poll.h>
 #include <linux/input.h>
-#include <loglibrary.h>
+#include <loglib/loglib.h>
 #include "utils/eventutils.h"
 
 VolumeButton::VolumeButton(sdbus::IObject* sdbus, sdbus::InterfaceName sdbusInterface) {
@@ -15,7 +15,7 @@ VolumeButton::VolumeButton(sdbus::IObject* sdbus, sdbus::InterfaceName sdbusInte
 
     std::optional<std::string> eventId = findEventID(VOLUME_BUTTON_PHYS);
     if (!eventId.has_value()){
-        ERROR("Could not determine the event ID of volume button!");
+        LOG_ERROR("Could not determine the event ID of volume button!");
         exit(1);
     }
 
@@ -23,7 +23,7 @@ VolumeButton::VolumeButton(sdbus::IObject* sdbus, sdbus::InterfaceName sdbusInte
     volumeButtonFile = fopen(filepath.c_str(), "r");
 
     if (!volumeButtonFile) {
-        ERROR("Could not open {}: {}", filepath, strerror(errno));
+        LOG_ERROR_F("Could not open {}: {}", filepath, strerror(errno));
         exit(1);
     }
 }
@@ -47,7 +47,7 @@ void VolumeButton::run(std::stop_token st){
         if (pfd[0].revents & POLLIN) {
             fread(&event, sizeof(input_event), 1, volumeButtonFile);
 
-            DBG("Volume {} {}. Value: {}, time: {}.{}", (event.code == KEY_VOLUMEDOWN ? "down " : "up "),
+            LOG_DEBUG_F("Volume {} {}. Value: {}, time: {}.{}", (event.code == KEY_VOLUMEDOWN ? "down " : "up "),
                 (event.type == EV_KEY ? "pressed." : "released."),
                 event.value, event.time.tv_sec, event.time.tv_usec);
 

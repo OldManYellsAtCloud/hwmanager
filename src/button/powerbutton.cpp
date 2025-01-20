@@ -1,7 +1,7 @@
 #include "button/powerbutton.h"
 #include <poll.h>
 #include <linux/input.h>
-#include <loglibrary.h>
+#include <loglib/loglib.h>
 #include "utils/eventutils.h"
 
 PowerButton::PowerButton(sdbus::IObject* sdbus, sdbus::InterfaceName sdbusInterface) {
@@ -13,7 +13,7 @@ PowerButton::PowerButton(sdbus::IObject* sdbus, sdbus::InterfaceName sdbusInterf
 
     std::optional<std::string> eventId = findEventID(POWER_BUTTON_PHYS);
     if (!eventId.has_value()){
-        ERROR("Could not determine the event ID of power button!");
+        LOG_ERROR("Could not determine the event ID of power button!");
         exit(1);
     }
 
@@ -21,7 +21,7 @@ PowerButton::PowerButton(sdbus::IObject* sdbus, sdbus::InterfaceName sdbusInterf
     powerButtonFile = fopen(filepath.c_str(), "r");
 
     if (!powerButtonFile) {
-        ERROR("Could not open {}: {}", filepath, strerror(errno));
+        LOG_ERROR_F("Could not open {}: {}", filepath, strerror(errno));
         exit(1);
     }
 }
@@ -45,7 +45,7 @@ void PowerButton::run(std::stop_token st){
         if (pfd[0].revents & POLLIN) {
             fread(&event, sizeof(input_event), 1, powerButtonFile);
 
-            DBG("Power event - code: {}, type: {}, value: {}", event.code, event.type, event.value);
+            LOG_DEBUG_F("Power event - code: {}, type: {}, value: {}", event.code, event.type, event.value);
 
             if (event.type == EV_KEY && event.code == KEY_POWER) {
                 std::string signalType = event.value == 1 ? POWER_BUTTON_PRESS : POWER_BUTTON_RELEASE;

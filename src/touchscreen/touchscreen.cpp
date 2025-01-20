@@ -3,7 +3,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <linux/input-event-codes.h>
-#include <loglibrary.h>
+#include <loglib/loglib.h>
 #include <format>
 
 #include "touchscreen/touchscreen.h"
@@ -20,7 +20,7 @@ TouchScreen::TouchScreen(sdbus::IObject* sdbus, sdbus::InterfaceName sdbusInterf
     std::optional<std::string> touchScreenEvent = findEventID(TOUCHSCREEN_TYPE);
 
     if (!touchScreenEvent.has_value()){
-        ERROR("Could not extract touch screen input name!");
+        LOG_ERROR("Could not extract touch screen input name!");
         exit(1);
     }
 
@@ -29,7 +29,7 @@ TouchScreen::TouchScreen(sdbus::IObject* sdbus, sdbus::InterfaceName sdbusInterf
     eventSource = fopen(touchScreenPath.c_str(), "r");
 
     if (!eventSource) {
-        ERROR("Could not open event source: {}, error: {}.", touchScreenPath, strerror(errno));
+        LOG_ERROR_F("Could not open event source: {}, error: {}.", touchScreenPath, strerror(errno));
         exit(1);
     }
 
@@ -71,33 +71,33 @@ Direction TouchScreen::calculateDirection(struct Points& points){
 
     int horizontalDiff = std::abs(points.start.x - points.end.x);
 
-    DBG("Calculating direction x1: {}, x2: {}, y1: {}, y2: {}. HorizontalDiff: {}", points.start.x, points.end.x,
+    LOG_DEBUG_F("Calculating direction x1: {}, x2: {}, y1: {}, y2: {}. HorizontalDiff: {}", points.start.x, points.end.x,
         points.start.y, points.end.y, horizontalDiff);
 
     if (horizontalDiff < 50) { // horizontal movement is very small, it is a vertical movement
         int verticalMovement = points.end.y  - points.start.y;
-        DBG("Vertical movement detected, points.end.y  - points.start.y: {}", verticalMovement);
+        LOG_DEBUG_F("Vertical movement detected, points.end.y  - points.start.y: {}", verticalMovement);
 
         if ( verticalMovement < 0 ) {
             if (points.start.y > (BOTTOM_Y - SCREEN_MARGIN)) {
-                DBG("BOTTOM_TO_TOP movement");
+                LOG_DEBUG_F("BOTTOM_TO_TOP movement");
                 ret =  Direction::BOTTOM_TO_TOP;
             }
         } else if (points.start.y < (TOP_Y + SCREEN_MARGIN)) {
-            DBG("TOP_TO_BOTTOM movement");
+            LOG_DEBUG_F("TOP_TO_BOTTOM movement");
             ret =  Direction::TOP_TO_BOTTOM;
         }
     } else { //horizontal movement
         int horizontalMovement = points.end.x - points.start.x;
-        DBG("Horizontal movement detected, points.end.x - points.start.x: {}", horizontalMovement);
+        LOG_DEBUG_F("Horizontal movement detected, points.end.x - points.start.x: {}", horizontalMovement);
 
         if (horizontalMovement > 0) {
             if (points.start.x < SCREEN_MARGIN) {
-                DBG("LEFT_TO_RIGHT movement");
+                LOG_DEBUG_F("LEFT_TO_RIGHT movement");
                 ret =  Direction::LEFT_TO_RIGHT;
             }
         } else if (points.start.x > (RIGHT_X - SCREEN_MARGIN)) {
-            DBG("RIGHT_TO_LEFT movement");
+            LOG_DEBUG_F("RIGHT_TO_LEFT movement");
             ret =  Direction::RIGHT_TO_LEFT;
         }
     }

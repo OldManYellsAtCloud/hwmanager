@@ -13,7 +13,7 @@ option(pinephone_pro "Build for PinePhonePro" OFF)
 
 find_package(sdbus-c++ REQUIRED)
 find_package(SettingsLib)
-find_package(LogLibrary)
+find_package(loglib REQUIRED)
 
 set(SOURCES src/main.cpp
             src/touchscreen/touchscreen.cpp
@@ -37,7 +37,7 @@ install(TARGETS hwmanager
 )
 
 target_include_directories(hwmanager PRIVATE include)
-target_link_libraries(hwmanager PRIVATE SDBusCpp::sdbus-c++)
+target_link_libraries(hwmanager PRIVATE SDBusCpp::sdbus-c++ loglib)
 
 if (enable_tests)
     find_package(GTest REQUIRED)

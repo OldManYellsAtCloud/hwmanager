@@ -5,6 +5,7 @@
 #include <touchscreen/touchscreen.h>
 #include <button/powerbutton.h>
 #include <button/volumebutton.h>
+#include <loglib/loglib.h>
 
 using namespace std;
 
@@ -22,6 +23,9 @@ void stopThreads(){
 int main()
 {
     atexit(stopThreads);
+
+    loglib::logger().setName("hwmanager");
+    loglib::logger().registerLogger(logging::LOGGER_FILE);
 
     sdbus::ServiceName serviceName{"org.gspine.hardware"};
     auto connection = sdbus::createBusConnection(serviceName);

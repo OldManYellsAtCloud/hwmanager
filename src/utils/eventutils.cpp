@@ -1,6 +1,6 @@
 #include "utils/eventutils.h"
 #include <fstream>
-#include <loglibrary.h>
+#include <loglib/loglib.h>
 #include <sstream>
 
 namespace {
@@ -52,7 +52,7 @@ std::optional<std::string> findEventID(std::string eventType){
     std::optional<std::string> eventId;
 
     if (!inputDevices.is_open()){
-        ERROR("Could not open input devices!");
+        LOG_ERROR("Could not open input devices!");
         exit(1);
     }
 
